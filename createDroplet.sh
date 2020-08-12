@@ -22,8 +22,14 @@ echo Preparing droplet...
 ssh -o StrictHostKeyChecking=no root@$dropletIP "git clone https://github.com/piresn/jupyter-docker.git; cd jupyter-docker; docker build -t jup .; docker run -d -p 8888:8888 --name labcont jup;"
 ssh -L 8888:localhost:8888 -f -N root@$dropletIP
 
-echo Finished.
+echo '++++++++++++++++++++'
+echo Finished. Jupyter lab is now running at http://localhost:8888/lab
+echo '++++++++++++++++++++'
 echo To stop portforwarding, use "pkill ssh" directly.
+echo
 echo To destroy droplet, use
+echo
 echo source .env
-echo curl -X DELETE -H "Content-Type: application/json" -H "Authorization: Bearer \$TOKEN" "https://api.digitalocean.com/v2/droplets/$dropletID"
+echo curl -X DELETE -H \"Content-Type: application/json\" -H \"Authorization: Bearer \$TOKEN\" \"https://api.digitalocean.com/v2/droplets/$dropletID\"
+echo
+echo '++++++++++++++++++++'
