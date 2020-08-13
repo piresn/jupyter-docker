@@ -33,14 +33,12 @@ ssh root@$dropletIP "cd docker; docker build -t jup .; docker run -d -p 8888:888
 ssh -L 8888:localhost:8888 -f -N root@$dropletIP
 
 
+echo export dropletNAME=$dropletNAME > .last
+echo export dropletID=$dropletID >> .last
+
 echo '++++++++++++++++++++'
-echo Finished. Jupyter lab is now running at http://localhost:8888/lab
-echo 
+sh listDroplets.sh
+echo Jupyter lab is now running at http://localhost:8888/lab
 echo To stop portforwarding, use "pkill ssh" directly.
-echo
-echo To destroy droplet, use
-echo source .env > removeLastDroplet
-echo curl -X DELETE -H \"Content-Type: application/json\" -H \"Authorization: Bearer \$TOKEN\" \"https://api.digitalocean.com/v2/droplets/$dropletID\" >> removeLastDroplet
-cat removeLastDroplet
-echo rm removeLastDroplet >> removeLastDroplet
+echo To destroy this droplet ($dropletNAME), run removeLastDroplet.sh
 echo '++++++++++++++++++++'
