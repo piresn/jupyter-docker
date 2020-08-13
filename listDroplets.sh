@@ -1,5 +1,3 @@
-# create droplet
-
 source .env
 
 echo available droplets = $(curl -s -X GET -H "Content-Type: application/json" \
