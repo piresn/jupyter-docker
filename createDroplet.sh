@@ -37,14 +37,14 @@ echo Preparing droplet...
 sleep 5
 
 # add volume
-curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"type": "attach", "volume_name": "'$VOLUMENAME'", "region": "'$REGION'", "droplet_id": "'$dropletID'","tags":["aninterestingtag"] }' "https://api.digitalocean.com/v2/volumes/actions"
+curl -s -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"type": "attach", "volume_name": "'$VOLUMENAME'", "region": "'$REGION'", "droplet_id": "'$dropletID'","tags":["aninterestingtag"] }' "https://api.digitalocean.com/v2/volumes/actions"
 
-sleep 5
+sleep 10
 
 scp -o StrictHostKeyChecking=no -o ServerAliveCountMax=20 -r docker/ root@$dropletIP:/root
 
-ssh root@$dropletIP "mkdir -p /mnt/$VOLUMENAME; \
-	mount -o discard,defaults,noatime /dev/disk/by-id/scsi-0DO_Volume_$VOLUMENAME /mnt/$VOLUMENAME; \
+ssh root@$dropletIP "mkdir -p /mnt/persistent_storage; \
+	mount -o discard,defaults,noatime /dev/disk/by-id/scsi-0DO_Volume_$VOLUMENAME /mnt/persistent_storage; \
 	cd docker; \
 	docker-compose up -d;"
 
