@@ -1,10 +1,18 @@
 # create droplet
 
+while getopts v: flag
+	do
+	    case "${flag}" in
+	        v) VOLUMENAME=${OPTARG};;
+	    esac
+	done
+	echo "Volume = $VOLUMENAME";
+
+
 source .env
 
 CPU=1
 MEM=1
-
 dropletSIZE=$(echo s-$CPU vcpu- $MEM gb | tr -d ' ')
 dropletNAME=docker-$(date | tr -d " " | tr -d :)
 dropletIMAGE=docker-18-04
@@ -26,19 +34,31 @@ dropletIP=$(curl -s -X GET -H "Content-Type: application/json" -H "Authorization
 echo droplet IP = $dropletIP
 echo Preparing droplet...
 
-sleep 10
+sleep 5
+
+# add volume
+curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"type": "attach", "volume_name": "'$VOLUMENAME'", "region": "'$REGION'", "droplet_id": "'$dropletID'","tags":["aninterestingtag"] }' "https://api.digitalocean.com/v2/volumes/actions"
+
+sleep 5
 
 scp -o StrictHostKeyChecking=no -o ServerAliveCountMax=20 -r docker/ root@$dropletIP:/root
-ssh root@$dropletIP "cd docker; docker build -t jup .; docker run -d -p 8888:8888 --name labcont jup;"
+
+ssh root@$dropletIP "mkdir -p /mnt/$VOLUMENAME; \
+	mount -o discard,defaults,noatime /dev/disk/by-id/scsi-0DO_Volume_$VOLUMENAME /mnt/$VOLUMENAME; \
+	cd docker; \
+	docker-compose up -d;"
+
 ssh -L 8888:localhost:8888 -f -N root@$dropletIP
 
 
 echo export dropletNAME=$dropletNAME > .last
 echo export dropletID=$dropletID >> .last
 
+echo
 echo '++++++++++++++++++++'
 sh listDroplets.sh
+echo Droplet $dropletNAME $dropletID has IP $dropletIP
 echo Jupyter lab is now running at http://localhost:8888/lab
 echo To stop portforwarding, use "pkill ssh" directly.
-echo To destroy this droplet ($dropletNAME), run removeLastDroplet.sh
+echo To destroy this droplet - $dropletNAME - run removeLastDroplet.sh
 echo '++++++++++++++++++++'
