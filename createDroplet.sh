@@ -19,7 +19,8 @@ dropletIP=$(curl -X GET -H "Content-Type: application/json" -H "Authorization: B
 echo droplet IP = $dropletIP
 echo Preparing droplet...
 
-ssh -o StrictHostKeyChecking=no root@$dropletIP "git clone https://github.com/piresn/jupyter-docker.git; cd jupyter-docker; docker build -t jup .; docker run -d -p 8888:8888 --name labcont jup;"
+scp -o StrictHostKeyChecking=no -o ServerAliveCountMax=20 -r docker/ root@$dropletIP:/root
+ssh root@$dropletIP "cd docker; docker build -t jup .; docker run -d -p 8888:8888 --name labcont jup;"
 ssh -L 8888:localhost:8888 -f -N root@$dropletIP
 
 echo '++++++++++++++++++++'
