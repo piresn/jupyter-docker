@@ -5,8 +5,7 @@ while getopts v: flag
 	    case "${flag}" in
 	        v) VOLUMENAME=${OPTARG};;
 	    esac
-	done
-	echo "Volume = $VOLUMENAME";
+	done;
 
 
 source .env
@@ -37,6 +36,7 @@ echo Preparing droplet...
 sleep 5
 
 # add volume
+echo Adding volume $VOLUMENAME
 curl -s -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"type": "attach", "volume_name": "'$VOLUMENAME'", "region": "'$REGION'", "droplet_id": "'$dropletID'","tags":["aninterestingtag"] }' "https://api.digitalocean.com/v2/volumes/actions"
 
 sleep 10
@@ -59,6 +59,8 @@ echo '++++++++++++++++++++'
 sh listDroplets.sh
 echo Droplet $dropletNAME $dropletID has IP $dropletIP
 echo Jupyter lab is now running at http://localhost:8888/lab
+echo To restart port-forwarding use
+echo ssh -L 8888:localhost:8888 -f -N root@$dropletIP
 echo To stop portforwarding, use "pkill ssh" directly.
 echo To destroy this droplet - $dropletNAME - run removeLastDroplet.sh
 echo '++++++++++++++++++++'
